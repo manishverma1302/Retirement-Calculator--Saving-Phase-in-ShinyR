@@ -1,0 +1,70 @@
+install.packages("ggplot2")
+library(ggplot2)
+library(shiny)
+#
+#-----------------------------------------------------------------------------------------------------------
+
+shinyServer(function(input, output) {
+  projectRetirement <- reactive({ 
+    
+    yearNow = input$year.now
+    
+    calYear = input$year.calender
+    
+    output$documentationText = renderText({"Adjust the slider bars to reflect the retirement scenario you wish to simulate:"})
+  })
+  
+  #-------------------------------------------------------------------------------------------------------
+  
+  output$SavingPlot <- renderPlot({
+    
+    YearsObserving = input$year.calender - input$year.now
+    n.obs=YearsObserving
+    
+    a.ret = input$annual.return/100
+    
+    a.infl = input$annual.inflation/100
+    
+    a.Saving = input$annual.savings
+    
+    portfolio.value.now = input$portfolio.value.now
+    #--------------------------------------------------------------------------------------------------
+    annual.saving = a.Saving*((1+a.infl)^(1:n.obs))
+    annual.saving
+    #---------------------------------------------------------------------------------------------------
+    total.saving = portfolio.value.now + a.Saving + cumsum(annual.saving)
+    total.saving
+    
+    #-----------------------------------------------------------------------------------------------------
+    portfolio.value1 = (portfolio.value.now*(1+a.ret))+a.Saving
+    
+    portfolio.value =  portfolio.value1
+    
+    portfolio.value[1] = ((portfolio.value)*(1+a.ret))    + annual.saving[1]
+    portfolio.value[2] = ((portfolio.value[1])*(1+a.ret)) + annual.saving[2]
+    portfolio.value[3] = ((portfolio.value[2])*(1+a.ret)) + annual.saving[3]
+    portfolio.value[4] = ((portfolio.value[3])*(1+a.ret)) + annual.saving[4]
+    portfolio.value[5] = ((portfolio.value[4])*(1+a.ret)) + annual.saving[5]
+    
+    portfolio.value[6] = ((portfolio.value[5])*(1+a.ret)) + annual.saving[6]
+    portfolio.value[7] = ((portfolio.value[6])*(1+a.ret)) + annual.saving[7]
+    portfolio.value[8] = ((portfolio.value[7])*(1+a.ret)) + annual.saving[8]
+    portfolio.value[9] = ((portfolio.value[8])*(1+a.ret)) + annual.saving[9]
+    portfolio.value[10] =((portfolio.value[9])*(1+a.ret)) + annual.saving[10]
+  
+     
+   portfolio.value
+  #------------------------------------------------------------------------------------------------------ 
+   
+
+  #------------------------------------------------------------------------------------------------------
+    x = ((input$year.now+1):input$year.calender) 
+            
+    
+    par(mfrow=c(3,1))
+    plot(x, portfolio.value, type = "S", col= "red", lwd= 2, main = "Year Vs Portfolio Value", xlab = "YEAR", ylab = "Portfolio Value")
+    plot(x, total.saving, type = "b", lwd=1, col="blue", main="Year Vs Total Saving", xlab = "YEAR", ylab = "Annual Saving")
+    plot(x, annual.saving, type = "h", lwd=1, col="red", main = "Year Vs Annual Saving", xlab = "YEAR", ylab = "Total Saving")
+    })
+  
+})
